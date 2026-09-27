@@ -113,6 +113,17 @@ The matchers currently included in the `assert` package are:
     }
     ```
 
+1. IsError
+
+    ```go
+    func TestIsError(t *testing.T) {
+        _, err := os.Open("does-not-exist.ext")
+        assert.With(t).
+            That(err).
+            IsError()
+    }
+    ```
+
 1. ThatPanics
 
     ```go

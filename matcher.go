@@ -197,6 +197,30 @@ func (m *Matcher) IsOk() *Matcher {
 	return m
 }
 
+// IsError verifies that the actual value is a non-nil error. It is the inverse
+// of IsOk: it fails for an untyped nil (no error occurred) and passes for a
+// non-nil error. The value must be an error (or nil). Any other type is a
+// misuse that fails.
+func (m *Matcher) IsError() *Matcher {
+	m.validateMatcherState()
+	m.t.Helper()
+	switch m.actual.(type) {
+	case nil:
+		// nil represents the absence of an error.
+		m.match = false
+		m.t.Error("is not an error: <nil>")
+	case error:
+		// A typed nil (for example, (*MyError)(nil)) is non-nil at the
+		// interface level, so it passes, matching `err != nil` semantics.
+		m.match = true
+	default:
+		// IsError only accepts error (or nil) values.
+		m.match = false
+		m.t.Errorf("is not an error type: %T", m.actual)
+	}
+	return m
+}
+
 // IsTrue verifies actual value captured in `That()` is `true`.
 func (m *Matcher) IsTrue() *Matcher {
 	m.validateMatcherState()

@@ -377,6 +377,63 @@ func TestMatcher_IsOk_ShouldPassWithNil(t *testing.T) {
 	}
 }
 
+func TestMatcher_IsError_ShouldPassWithError(t *testing.T) {
+	assert := With(new(testing.T)).That(errors.New("test")).IsError()
+
+	if assert == nil {
+		t.Error("IsError returned nil")
+		return
+	}
+
+	if assert.match == false {
+		t.Error("IsError matcher failed.")
+	}
+}
+
+func TestMatcher_IsError_ShouldPassWithValueError(t *testing.T) {
+	var err error = valueError{}
+	assert := With(new(testing.T)).That(err).IsError()
+
+	if assert.match == false {
+		t.Error("IsError should pass for a value-type error")
+	}
+}
+
+func TestMatcher_IsError_ShouldPassWithTypedNilError(t *testing.T) {
+	// A typed nil is non-nil at the interface level, mirroring `err != nil`.
+	var err error = (*customError)(nil)
+	assert := With(new(testing.T)).That(err).IsError()
+
+	if assert.match == false {
+		t.Error("IsError should pass for a typed-nil error")
+	}
+}
+
+func TestMatcher_IsError_ShouldFailWithNil(t *testing.T) {
+	assert := With(new(testing.T)).That(nil).IsError()
+
+	if assert.match == true {
+		t.Error("IsError should fail for nil")
+	}
+}
+
+func TestMatcher_IsError_ShouldFailWithNilErrorVariable(t *testing.T) {
+	var err error
+	assert := With(new(testing.T)).That(err).IsError()
+
+	if assert.match == true {
+		t.Error("IsError should fail for a nil error")
+	}
+}
+
+func TestMatcher_IsError_ShouldFailWithNonError(t *testing.T) {
+	assert := With(new(testing.T)).That("not an error").IsError()
+
+	if assert.match == true {
+		t.Error("IsError should reject a non-error value")
+	}
+}
+
 func TestMatcher_IsTrue_ShouldPassWithTrue(t *testing.T) {
 	assert := With(new(testing.T)).That(true).IsTrue()
 
